@@ -1,0 +1,126 @@
+app.py:
+from flask import Flask
+import config
+from exts import db, mail
+from models import UserModel
+from blueprints.qa import bp as qa_bp
+from blueprints.auth import bp as auth_bp
+from flask_migrate import Migrate
+
+app = Flask(__name__)
+# 关联config文件
+app.config.from_object(config)
+# 绑定orm对象数据库
+db.init_app(app)
+# 绑定邮箱
+mail.init_mail(app)
+
+migrate = Migrate(app,db)
+
+# 注册蓝图
+app.register_blueprint(qa_bp)
+app.register_blueprint(auth_bp)
+
+# blueprint
+# @app.route('/')
+# def hello_world():  # put application's code here
+#     return 'Hello World!'
+
+
+if __name__ == '__main__':
+    app.run()
+
+
+config.py:
+# 数据库的配置变量
+HOSTNAME = '127.0.0.1'
+PORT     = '3306'
+DATABASE = 'zeyeoa'
+USERNAME = 'root'
+PASSWORD = '123456'
+DB_URI= f'mysql+pymysql://{USERNAME}:{PASSWORD}@{HOSTNAME}:{PORT}/{DATABASE}?charset=utf8mb4'
+SQLALCHEMY_DATABASE_URI = DB_URI
+
+MAIL_SERVER = 'smtp.qq.com'
+MAIL_USE_SSL = True
+MAIL_PORT = 465
+MAIL_USERNAME = '3189167918@qq.com'
+MAIL_PASSWORD = 'ccxnmegdynqudcef'
+MAIL_DEFAULT_SENDER = '3189167918@qq.com'
+
+blueprints/auth.py:
+from flask import Blueprint, render_template
+from exts import mail
+from flask_mail import Message
+# /auth开头
+bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+# /auth/login
+@bp.route('/login')
+def login():
+    pass
+
+@bp.route('/register')
+def register():
+    return render_template("register.html")
+
+@bp.route('/mail_test')
+def mail_test():
+    message = Message(subject="邮箱测试",sender='473674495@qq.com', recipients=["473674495@qq.com"], body="这是一条测试邮件")
+    mail.send(message)
+    return "邮件发送成功"
+
+项目报错：
+FLASK_APP = app.py
+FLASK_ENV = development
+FLASK_DEBUG = 1
+In folder D:/Programming/python/pythonProject/tingyuOA
+D:\Programming\environment\python\python.exe -m flask run
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Programming\environment\python\Lib\site-packages\flask\__main__.py", line 3, in <module>
+    main()
+  File "D:\Programming\environment\python\Lib\site-packages\flask\cli.py", line 1129, in main
+    cli.main()
+  File "D:\Programming\environment\python\Lib\site-packages\click\core.py", line 1082, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\click\core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\click\core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\click\core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\click\decorators.py", line 92, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\click\core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\flask\cli.py", line 977, in run_command
+    raise e from None
+  File "D:\Programming\environment\python\Lib\site-packages\flask\cli.py", line 961, in run_command
+    app: WSGIApplication = info.load_app()  # pyright: ignore
+                           ^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\flask\cli.py", line 349, in load_app
+    app = locate_app(import_name, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\flask\cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "D:\Programming\python\pythonProject\tingyuOA\app.py", line 15, in <module>
+    mail.init_mail(app)
+  File "D:\Programming\environment\python\Lib\site-packages\flask_mail\__init__.py", line 607, in init_mail
+    config.get("MAIL_SERVER", "127.0.0.1"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\environment\python\Lib\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Scaffold.get() takes 2 positional arguments but 3 were given
+
+进程已结束,退出代码1
+
+分析原因
