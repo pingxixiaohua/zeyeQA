@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session, g
 import config
 from exts import db, mail
 from models import UserModel
@@ -21,9 +21,26 @@ app.register_blueprint(qa_bp)
 app.register_blueprint(auth_bp)
 
 # blueprint
-# @app.route('/')
-# def hello_world():  # put application's code here
-#     return 'Hello World!'
+# 模块化
+
+# flask db init: 只执行一次
+# flask db migrate: 将orm模型生成迁移脚本
+# flask db upgrade: 将迁移脚本映射到数据库中
+
+# before_request/ bdefore_first_request/ ofter_reguest
+# hook
+@app.before_request
+def my_before_request():
+    user_id = session.get("user_id")
+    if user_id:
+        user = UserModel.query.get(user_id)
+        setattr(g, "user", user)
+    else:
+        setattr(g, "user", None)
+
+@app.context_processor
+def my_context_processor():
+    return {"user": g.user}
 
 
 if __name__ == '__main__':

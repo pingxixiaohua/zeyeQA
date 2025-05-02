@@ -59,6 +59,11 @@ def register():
             print(form.errors)
             return redirect(url_for("auth.register"))
 
+@bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect("/")
+
 @bp.route('/cpatcha/email')
 def get_email_cpatcha():
     email = request.args.get("email")
